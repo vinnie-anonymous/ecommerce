@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ order.order_number }} – Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">Order {{ order.order_number }}</h3>
+  <a href="{% url 'dashboard:order_list' %}" class="btn btn-outline-secondary">Back to Orders</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-white fw-bold">Order Items</div>
+      <div class="card-body">
+        {% for item in order.items.all %}
+        <div class="d-flex justify-content-between mb-2">
+          <span>{{ item.product_name }} × {{ item.quantity }}</span>
+          <span>KES {{ item.total_price|floatformat:0 }}</span>
+        </div>
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between fw-bold">
+          <span>Total</span>
+          <span class="text-success">KES {{ order.total_price|floatformat:0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-bold">Update Status</div>
+      <div class="card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <select name="status" class="form-select mb-3">
+            {% for value, label in order.STATUS_CHOICES %}
+            <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-brand">Update Status</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-bold">Customer Details</div>
+      <div class="card-body">
+        <p class="mb-1"><strong>{{ order.full_name }}</strong></p>
+        <p class="mb-1">{{ order.email }}</p>
+        <p class="mb-1">{{ order.phone }}</p>
+        <p class="mb-1">{{ order.address }}</p>
+        <p class="mb-0">{{ order.city }}{% if order.county %}, {{ order.county }}{% endif %}</p>
+        {% if order.mpesa_code %}
+        <hr>
+        <p class="mb-0">M-Pesa: <strong>{{ order.mpesa_code }}</strong></p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

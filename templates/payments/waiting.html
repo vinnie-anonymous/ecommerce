@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Waiting for Payment…{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5 text-center py-5">
+    <div class="spinner-border text-success mb-4" role="status" style="width:3rem;height:3rem"></div>
+    <h4 class="fw-bold">Check Your Phone</h4>
+    <p class="text-muted">
+      An M-Pesa payment prompt has been sent to your phone.<br>
+      Enter your <strong>M-Pesa PIN</strong> to complete payment.
+    </p>
+    <div class="alert alert-warning mt-3">
+      ⏳ Do not close this page. You'll be redirected automatically.
+    </div>
+    <a href="{% url 'orders:order_success' order_id=order.id %}" class="btn btn-outline-success mt-3">
+      Check Order Status
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Poll every 5 seconds to check if payment completed
+  // In production, use WebSockets or a dedicated status endpoint
+  setTimeout(() => {
+    window.location.href = "{% url 'orders:order_success' order_id=order.id %}";
+  }, 15000);
+</script>
+{% endblock %}

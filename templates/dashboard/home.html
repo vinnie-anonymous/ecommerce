@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Seller Dashboard – Duka{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">📊 Seller Dashboard</h3>
+  <a href="{% url 'dashboard:product_create' %}" class="btn btn-brand">
+    <i class="bi bi-plus-lg"></i> New Product
+  </a>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="card shadow-sm text-center p-3">
+      <div class="fs-2 fw-bold text-success">KES {{ revenue|floatformat:0 }}</div>
+      <div class="text-muted small">Total Revenue</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card shadow-sm text-center p-3">
+      <div class="fs-2 fw-bold text-primary">{{ total_orders }}</div>
+      <div class="text-muted small">Total Orders</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card shadow-sm text-center p-3">
+      <div class="fs-2 fw-bold text-warning">{{ pending_orders }}</div>
+      <div class="text-muted small">Pending Orders</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card shadow-sm text-center p-3">
+      <div class="fs-2 fw-bold text-danger">{{ low_stock_products.count }}</div>
+      <div class="text-muted small">Low Stock Items</div>
+    </div>
+  </div>
+</div>
+
+<!-- Low Stock Alert -->
+{% if low_stock_products %}
+<div class="alert alert-warning">
+  <strong>⚠️ Low Stock:</strong>
+  {% for p in low_stock_products %}
+    <a href="{% url 'dashboard:product_edit' product_id=p.id %}" class="badge bg-warning text-dark me-1">
+      {{ p.name }} ({{ p.stock }} left)
+    </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Recent Orders -->
+<div class="card shadow-sm">
+  <div class="card-header bg-white d-flex justify-content-between">
+    <span class="fw-bold">Recent Orders</span>
+    <a href="{% url 'dashboard:order_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+  </div>
+  <div class="card-body p-0">
+    <table class="table mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td>#{{ order.pk }}</td>
+          <td>{{ order.full_name }}<br><small class="text-muted">{{ order.email }}</small></td>
+          <td>KES {{ order.total_price|floatformat:0 }}</td>
+          <td>
+            <span class="badge
+              {% if order.status == 'paid' or order.status == 'delivered' %}bg-success
+              {% elif order.status == 'pending' %}bg-warning text-dark
+              {% elif order.status == 'shipped' %}bg-primary
+              {% else %}bg-secondary{% endif %}">
+              {{ order.get_status_display }}
+            </span>
+          </td>
+          <td class="text-muted small">{{ order.created_at|date:"d M Y H:i" }}</td>
+          <td>
+            <a href="{% url 'dashboard:order_detail' order_id=order.id %}"
+               class="btn btn-sm btn-outline-success">View</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

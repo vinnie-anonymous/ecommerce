@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.pk }} – Duka{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <!-- Status Banner -->
+    <div class="card mb-4 border-0
+      {% if order.status == 'paid' or order.status == 'delivered' %}bg-success bg-opacity-10
+      {% elif order.status == 'pending' %}bg-warning bg-opacity-10
+      {% else %}bg-info bg-opacity-10{% endif %}">
+      <div class="card-body text-center py-4">
+        <h3 class="fw-bold">
+          {% if order.status == 'pending' %}⏳
+          {% elif order.status == 'paid' %}✅
+          {% elif order.status == 'processing' %}⚙️
+          {% elif order.status == 'shipped' %}🚚
+          {% elif order.status == 'delivered' %}🎉
+          {% endif %}
+          Order #{{ order.pk }}
+        </h3>
+        <span class="badge fs-6 bg-{% if order.status == 'paid' or order.status == 'delivered' %}success{% elif order.status == 'pending' %}warning text-dark{% else %}primary{% endif %}">
+          {{ order.get_status_display }}
+        </span>
+        {% if order.mpesa_code %}
+        <p class="mt-2 mb-0 text-muted">M-Pesa Code: <strong>{{ order.mpesa_code }}</strong></p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Items -->
+      <div class="col-md-7">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white fw-bold">Order Items</div>
+          <div class="card-body">
+            {% for item in order.items.all %}
+            <div class="d-flex justify-content-between mb-2">
+              <span>{{ item.product_name }} × {{ item.quantity }}</span>
+              <span class="fw-semibold">KES {{ item.get_total_price|floatformat:0 }}</span>
+            </div>
+            {% endfor %}
+            <hr>
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Total Paid</span>
+              <span class="text-success">KES {{ order.total_price|floatformat:0 }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery -->
+      <div class="col-md-5">
+        <div class="card shadow-sm">
+          <div class="card-header bg-white fw-bold">Delivery Address</div>
+          <div class="card-body small">
+            <p class="mb-1 fw-semibold">{{ order.full_name }}</p>
+            <p class="mb-1">{{ order.phone }}</p>
+            <p class="mb-1">{{ order.address }}</p>
+            <p class="mb-0">{{ order.city }}{% if order.county %}, {{ order.county }}{% endif %}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'products:product_list' %}" class="btn btn-brand">Continue Shopping</a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'orders:order_history' %}" class="btn btn-outline-secondary ms-2">My Orders</a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

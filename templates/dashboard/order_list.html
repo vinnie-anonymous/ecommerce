@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Orders – Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3 class="fw-bold mb-0">Orders</h3>
+  <a href="{% url 'dashboard:home' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
+
+<form method="GET" class="row g-2 mb-4">
+  <div class="col-md-3">
+    <select name="status" class="form-select">
+      <option value="">All Statuses</option>
+      {% for value, label in status_choices %}
+      <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select name="date_filter" class="form-select">
+      <option value="">All Time</option>
+      <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+      <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+      <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-outline-success w-100">Filter</button>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table mb-0 align-middle">
+      <thead class="table-light">
+        <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>{{ order.order_number }}</td>
+          <td>{{ order.full_name }}<br><small class="text-muted">{{ order.email }}</small></td>
+          <td>KES {{ order.total_price|floatformat:0 }}</td>
+          <td><span class="badge bg-secondary">{{ order.get_status_display }}</span></td>
+          <td>{{ order.created_at|date:"d M Y H:i" }}</td>
+          <td><a href="{% url 'dashboard:order_detail' order_id=order.id %}" class="btn btn-sm btn-outline-success">View</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No orders found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

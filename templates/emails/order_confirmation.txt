@@ -1,0 +1,22 @@
+Hi {{ order.first_name }},
+
+Thank you for your order! Here's your confirmation.
+
+Order #{{ order.pk }}
+Date: {{ order.created_at|date:"d M Y H:i" }}
+M-Pesa Code: {{ order.mpesa_code }}
+
+ITEMS:
+{% for item in order.items.all %}  - {{ item.product_name }} × {{ item.quantity }}  ...  KES {{ item.get_total_price }}
+{% endfor %}
+
+TOTAL: KES {{ order.total_price }}
+
+DELIVERY TO:
+{{ order.full_name }}
+{{ order.address }}
+{{ order.city }}{% if order.county %}, {{ order.county }}{% endif %}
+
+We'll notify you when your order is shipped.
+
+Thank you for shopping with Duka!

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px">
+  <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden">
+    <div style="background:#16a34a;padding:24px;text-align:center">
+      <h1 style="color:#fff;margin:0">🛒 Duka</h1>
+      <p style="color:#dcfce7;margin:8px 0 0">Order Confirmed!</p>
+    </div>
+    <div style="padding:32px">
+      <p>Hi <strong>{{ order.first_name }}</strong>,</p>
+      <p>Your payment was received. Here's your order summary:</p>
+
+      <div style="background:#f0fdf4;border-radius:6px;padding:16px;margin:16px 0">
+        <strong>Order #{{ order.pk }}</strong> &nbsp;|&nbsp;
+        M-Pesa: <strong>{{ order.mpesa_code }}</strong>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f4f4f4">
+            <th style="padding:8px;text-align:left">Item</th>
+            <th style="padding:8px;text-align:right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #eee">
+              {{ item.product_name }} × {{ item.quantity }}
+            </td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">
+              KES {{ item.get_total_price }}
+            </td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td style="padding:12px;font-weight:bold">Total</td>
+            <td style="padding:12px;font-weight:bold;text-align:right;color:#16a34a">
+              KES {{ order.total_price }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr style="margin:24px 0">
+      <p><strong>Delivering to:</strong><br>
+        {{ order.full_name }}<br>
+        {{ order.address }}, {{ order.city }}
+      </p>
+    </div>
+    <div style="background:#f4f4f4;padding:16px;text-align:center;font-size:12px;color:#999">
+      © Duka Store · Nairobi, Kenya
+    </div>
+  </div>
+</body>
+</html>

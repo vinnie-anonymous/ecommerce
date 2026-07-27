@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} – Duka{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'products:product_list' %}">Shop</a></li>
+    {% if product.category %}
+    <li class="breadcrumb-item">
+      <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+    </li>
+    {% endif %}
+    <li class="breadcrumb-item active">{{ product.name }}</li>
+  </ol>
+</nav>
+
+<div class="row g-5">
+  <!-- Image Gallery -->
+  <div class="col-md-6">
+    {% with images=product.images.all %}
+      {% if images %}
+        <!-- Main image -->
+        <img id="main-img"
+             src="{{ product.primary_image.image.url }}"
+             class="img-fluid rounded shadow-sm w-100 mb-3"
+             style="max-height:420px; object-fit:cover"
+             alt="{{ product.name }}">
+        <!-- Thumbnails -->
+        {% if images.count > 1 %}
+        <div class="d-flex gap-2 flex-wrap">
+          {% for img in images %}
+          <img src="{{ img.image.url }}"
+               class="rounded border {% if img.is_primary %}border-success border-2{% endif %}"
+               style="width:70px;height:70px;object-fit:cover;cursor:pointer"
+               onclick="document.getElementById('main-img').src='{{ img.image.url }}'">
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
+             style="height:380px">
+          <i class="bi bi-image fs-1"></i>
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Product Info -->
+  <div class="col-md-6">
+    <span class="badge bg-success mb-2">{{ product.category.name }}</span>
+    <h2 class="fw-bold">{{ product.name }}</h2>
+    <h3 class="text-success fw-bold my-3">KES {{ product.price|floatformat:0 }}</h3>
+    <p class="text-muted">{{ product.description }}</p>
+
+    <div class="my-3">
+      {% if product.in_stock %}
+        <span class="badge bg-success"><i class="bi bi-check-circle"></i> In Stock ({{ product.stock }} left)</span>
+      {% else %}
+        <span class="badge bg-danger">Out of Stock</span>
+      {% endif %}
+    </div>
+
+    {% if product.in_stock %}
+    <form method="POST" action="{% url 'cart:cart_add' product.id %}">
+      {% csrf_token %}
+      <div class="d-flex gap-3 align-items-center">
+        <select name="quantity" class="form-select w-auto">
+          {% for i in "12345"|make_list %}
+          <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+          {% endfor %}
+        </select>
+        <input type="hidden" name="override" value="False">
+        <button class="btn btn-brand btn-lg flex-grow-1">
+          <i class="bi bi-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+    </form>
+    <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-success mt-2 w-100">
+      View Cart <i class="bi bi-arrow-right"></i>
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Related Products -->
+{% if related_products %}
+<hr class="my-5">
+<h5 class="fw-bold mb-3">You Might Also Like</h5>
+<div class="row row-cols-2 row-cols-md-4 g-3">
+  {% for p in related_products %}
+  <div class="col">
+    <a href="{{ p.get_absolute_url }}" class="text-decoration-none text-dark">
+      <div class="card h-100 shadow-sm">
+        {% if p.primary_image %}
+          <img src="{{ p.primary_image.image.url }}" class="card-img-top"
+               style="height:180px;object-fit:cover" alt="{{ p.name }}">
+        {% endif %}
+        <div class="card-body">
+          <p class="card-title mb-1 small fw-bold">{{ p.name }}</p>
+          <p class="text-success mb-0">KES {{ p.price|floatformat:0 }}</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
